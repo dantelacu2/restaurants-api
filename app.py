@@ -2,10 +2,15 @@ import flask
 from flask import Flask, request, jsonify
 
 import scrapeSearch
+import restaurants
 
 app = Flask(__name__)
 
-@app.route('/api', methods=['GET'])
+@app.route('/api/names', methods=['GET'])
+def dataPull2():
+    return jsonify(restaurants.main())
+    
+@app.route('/api/statuses', methods=['GET'])
 def dataPull():
 
     if 'placeName' in request.args:
