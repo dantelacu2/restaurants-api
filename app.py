@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 @app.route('/api/names', methods=['GET'])
 def dataPull2():
-    return jsonify(restaurants.main())
-    
+    return jsonify(restaurants.main({'lat':37.956821, 'lng':-122.549118}, 'Novato, California'))
+
 @app.route('/api/statuses', methods=['GET'])
 def dataPull():
 

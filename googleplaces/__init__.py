@@ -2,14 +2,11 @@
 A simple wrapper around the 'experimental' Google Places API, documented
 here: http://code.google.com/apis/maps/documentation/places/. This library
 also makes use of the v3 Maps API for geocoding.
-
 Prerequisites: A Google API key with Places activated against it. Please
 check the Google API console, here: http://code.google.com/apis/console
-
 NOTE: Please ensure that you read the Google terms of service (labelled 'Limits
 and Requirements' on the documentation url) prior to using this library in a
 production environment.
-
 @author: sam@slimkrazy.com
 """
 from __future__ import absolute_import
@@ -83,7 +80,6 @@ def _fetch_remote_json(service_url, params=None, use_http_post=False):
 
 def _fetch_remote_file(service_url, params=None, use_http_post=False):
     """Retrieves a file from a URL.
-
     Returns a tuple (mimetype, filename, data)
     """
     if not params:
@@ -99,15 +95,12 @@ def _fetch_remote_file(service_url, params=None, use_http_post=False):
 
 def geocode_location(location, sensor=False, api_key=None):
     """Converts a human-readable location to lat-lng.
-
     Returns a dict with lat and lng keys.
-
     keyword arguments:
     location -- A human-readable location, e.g 'London, England'
     sensor   -- Boolean flag denoting if the location came from a device using
                 its' location sensor (default False)
     api_key  -- A valid Google Places API key.
-
     raises:
     GooglePlacesError -- if the geocoder fails to find a location.
     """
@@ -126,7 +119,6 @@ def geocode_location(location, sensor=False, api_key=None):
 def _get_place_details(place_id, api_key, sensor=False,
                        language=lang.ENGLISH):
     """Gets a detailed place response.
-
     keyword arguments:
     place_id -- The unique identifier for the required place.
     """
@@ -142,14 +134,11 @@ def _get_place_photo(photoreference, api_key, maxheight=None, maxwidth=None,
                        sensor=False):
     """Gets a place's photo by reference.
     See detailed documentation at https://developers.google.com/places/documentation/photos
-
     Arguments:
     photoreference -- The unique Google reference for the required photo.
-
     Keyword arguments:
     maxheight -- The maximum desired photo height in pixels
     maxwidth -- The maximum desired photo width in pixels
-
     You must specify one of this keyword arguments. Acceptable value is an
     integer between 1 and 1600.
     """
@@ -181,13 +170,11 @@ class GooglePlacesError(Exception):
 
 class GooglePlacesAttributeError(AttributeError):
     """Exception thrown when a detailed property is unavailable.
-
     A search query from the places API returns only a summary of the Place.
     in order to get full details, a further API call must be made using
     the place_id. This exception will be thrown when a property made
     available by only the detailed API call is looked up against the summary
     object.
-
     An explicit call to get_details() must be made on the summary object in
     order to convert a summary object to a detailed object.
     """
@@ -229,14 +216,12 @@ class GooglePlaces(object):
                           DeprecationWarning, stacklevel=2)
         return self.nearby_search(**kwargs)
 
-    def nearby_search(self, language=lang.ENGLISH, keyword=None, location=None,
-               lat_lng={'lat':37.956821, 'lng':-122.549118}, name=None, radius=12874, rankby=ranking.PROMINENCE,
+    def nearby_search(self, language=lang.ENGLISH, keyword="restaurant", location=None,
+               lat_lng=None, name=None, radius=3200, rankby=ranking.PROMINENCE,
                sensor=False, type=None, types=[], pagetoken=None):
         """Perform a nearby search using the Google Places API.
-
         One of either location, lat_lng or pagetoken are required, the rest of
         the keyword arguments are optional.
-
         keyword arguments:
         keyword  -- A term to be matched against all available fields, including
                     but not limited to name, type, and address (default None)
@@ -308,10 +293,8 @@ class GooglePlaces(object):
     def text_search(self, query=None, language=lang.ENGLISH, lat_lng=None,
                     radius=3200, type=None, types=[], location=None, pagetoken=None):
         """Perform a text search using the Google Places API.
-
         Only the one of the query or pagetoken kwargs are required, the rest of the
         keyword arguments are optional.
-
         keyword arguments:
         lat_lng  -- A dict containing the following keys: lat, lng
                     (default None)
@@ -357,10 +340,8 @@ class GooglePlaces(object):
                      language=lang.ENGLISH, types=None, components=[]):
         """
         Perform an autocomplete search using the Google Places API.
-
         Only the input kwarg is required, the rest of the keyword arguments
         are optional.
-
         keyword arguments:
         input    -- The text string on which to search, for example:
                     "Hattie B's".
@@ -399,77 +380,74 @@ class GooglePlaces(object):
                 GooglePlaces.AUTOCOMPLETE_API_URL, self._request_params)
         _validate_response(url, places_response)
         return GoogleAutocompleteSearchResult(self, places_response)
-
-    def radar_search(self, sensor=False, keyword=None, name=None,
-                     language=lang.ENGLISH, lat_lng=None, opennow=False,
-                     radius=3200, type=None, types=[], location=None):
-        """Perform a radar search using the Google Places API.
-
-        One of lat_lng or location are required, the rest of the keyword
-        arguments are optional.
-
-        keyword arguments:
-        keyword  -- A term to be matched against all available fields, including
-                    but not limited to name, type, and address (default None)
-        name     -- A term to be matched against the names of Places. Results will
-                    be restricted to those containing the passed name value.
-        language -- The language code, indicating in which language the
-                    results should be returned, if possible. (default lang.ENGLISH)
-        lat_lng  -- A dict containing the following keys: lat, lng
-                    (default None)
-        location -- A human readable location, e.g 'London, England'
-                    (default None)
-        radius   -- The radius (in meters) around the location/lat_lng to
-                    restrict the search to. The maximum is 50000 meters.
-                    (default 3200)
-        opennow  -- Returns only those Places that are open for business at the time
-                    the query is sent. (default False)
-        sensor   -- Indicates whether or not the Place request came from a
-                    device using a location sensor (default False).
-        type     -- Optional type param used to indicate place category
-        types    -- An optional list of types, restricting the results to
-                    Places (default []). If there is only one item the request
-                    will be send as type param
-        """
-        if keyword is None and name is None and len(types) is 0:
-            raise ValueError('One of keyword, name or types must be supplied.')
-        if location is None and lat_lng is None:
-            raise ValueError('One of location or lat_lng must be passed in.')
-        try:
-            radius = int(radius)
-        except:
-            raise ValueError('radius must be passed supplied as an integer.')
-        if sensor not in [True, False]:
-            raise ValueError('sensor must be passed in as a boolean value.')
-
-        self._request_params = {'radius': radius}
-        self._sensor = sensor
-        self._request_params['location'] = self._generate_lat_lng_string(
-                lat_lng, location)
-        if keyword is not None:
-            self._request_params['keyword'] = keyword
-        if name is not None:
-            self._request_params['name'] = name
-        if type:
-            self._request_params['type'] = type
-        elif types:
-            if len(types) == 1:
-                self._request_params['type'] = types[0]
-            elif len(types) > 1:
-                self._request_params['types'] = '|'.join(types)
-        if language is not None:
-            self._request_params['language'] = language
-        if opennow is True:
-            self._request_params['opennow'] = 'true'
-        self._add_required_param_keys()
-        url, places_response = _fetch_remote_json(
-                GooglePlaces.RADAR_SEARCH_API_URL, self._request_params)
-        _validate_response(url, places_response)
-        return GooglePlacesSearchResult(self, places_response)
+    #
+    # def radar_search(self, sensor=False, keyword=None, name=None,
+    #                  language=lang.ENGLISH, lat_lng=None, opennow=False,
+    #                  radius=3200, type=None, types=[], location=None):
+    #     """Perform a radar search using the Google Places API.
+    #     One of lat_lng or location are required, the rest of the keyword
+    #     arguments are optional.
+    #     keyword arguments:
+    #     keyword  -- A term to be matched against all available fields, including
+    #                 but not limited to name, type, and address (default None)
+    #     name     -- A term to be matched against the names of Places. Results will
+    #                 be restricted to those containing the passed name value.
+    #     language -- The language code, indicating in which language the
+    #                 results should be returned, if possible. (default lang.ENGLISH)
+    #     lat_lng  -- A dict containing the following keys: lat, lng
+    #                 (default None)
+    #     location -- A human readable location, e.g 'London, England'
+    #                 (default None)
+    #     radius   -- The radius (in meters) around the location/lat_lng to
+    #                 restrict the search to. The maximum is 50000 meters.
+    #                 (default 3200)
+    #     opennow  -- Returns only those Places that are open for business at the time
+    #                 the query is sent. (default False)
+    #     sensor   -- Indicates whether or not the Place request came from a
+    #                 device using a location sensor (default False).
+    #     type     -- Optional type param used to indicate place category
+    #     types    -- An optional list of types, restricting the results to
+    #                 Places (default []). If there is only one item the request
+    #                 will be send as type param
+    #     """
+    #     if keyword is None and name is None and len(types) is 0:
+    #         raise ValueError('One of keyword, name or types must be supplied.')
+    #     if location is None and lat_lng is None:
+    #         raise ValueError('One of location or lat_lng must be passed in.')
+    #     try:
+    #         radius = int(radius)
+    #     except:
+    #         raise ValueError('radius must be passed supplied as an integer.')
+    #     if sensor not in [True, False]:
+    #         raise ValueError('sensor must be passed in as a boolean value.')
+    #
+    #     self._request_params = {'radius': radius}
+    #     self._sensor = sensor
+    #     self._request_params['location'] = self._generate_lat_lng_string(
+    #             lat_lng, location)
+    #     if keyword is not None:
+    #         self._request_params['keyword'] = keyword
+    #     if name is not None:
+    #         self._request_params['name'] = name
+    #     if type:
+    #         self._request_params['type'] = type
+    #     elif types:
+    #         if len(types) == 1:
+    #             self._request_params['type'] = types[0]
+    #         elif len(types) > 1:
+    #             self._request_params['types'] = '|'.join(types)
+    #     if language is not None:
+    #         self._request_params['language'] = language
+    #     if opennow is True:
+    #         self._request_params['opennow'] = 'true'
+    #     self._add_required_param_keys()
+    #     url, places_response = _fetch_remote_json(
+    #             GooglePlaces.RADAR_SEARCH_API_URL, self._request_params)
+    #     _validate_response(url, places_response)
+    #     return GooglePlacesSearchResult(self, places_response)
 
     def checkin(self, place_id, sensor=False):
         """Checks in a user to a place.
-
         keyword arguments:
         place_id  -- The unique Google identifier for the relevant place.
         sensor    -- Boolean flag denoting if the location came from a
@@ -483,7 +461,6 @@ class GooglePlaces(object):
 
     def get_place(self, place_id, sensor=False, language=lang.ENGLISH):
         """Gets a detailed place object.
-
         keyword arguments:
         place_id -- The unique Google identifier for the required place.
         sensor    -- Boolean flag denoting if the location came from a
@@ -495,78 +472,75 @@ class GooglePlaces(object):
                 self.api_key, sensor, language=language)
         return Place(self, place_details)
 
-    def add_place(self, **kwargs):
-        """Adds a place to the Google Places database.
-
-        On a successful request, this method will return a dict containing
-        the the new Place's place_id and id in keys 'place_id' and 'id'
-        respectively.
-
-        keyword arguments:
-        name        -- The full text name of the Place. Limited to 255
-                       characters.
-        lat_lng     -- A dict containing the following keys: lat, lng.
-        accuracy    -- The accuracy of the location signal on which this request
-                       is based, expressed in meters.
-        types       -- The category in which this Place belongs. Only one type
-                       can currently be specified for a Place. A string or
-                       single element list may be passed in.
-        language    -- The language in which the Place's name is being reported.
-                       (defaults 'en').
-        sensor      -- Boolean flag denoting if the location came from a device
-                       using its location sensor (default False).
-        """
-        required_kwargs = {'name': [str], 'lat_lng': [dict],
-                           'accuracy': [int], 'types': [str, list]}
-        request_params = {}
-        for key in required_kwargs:
-            if key not in kwargs or kwargs[key] is None:
-                raise ValueError('The %s argument is required.' % key)
-            expected_types = required_kwargs[key]
-            type_is_valid = False
-            for expected_type in expected_types:
-                if isinstance(kwargs[key], expected_type):
-                    type_is_valid = True
-                    break
-            if not type_is_valid:
-                raise ValueError('Invalid value for %s' % key)
-            if key is not 'lat_lng':
-                request_params[key] = kwargs[key]
-
-        if len(kwargs['name']) > 255:
-            raise ValueError('The place name must not exceed 255 characters ' +
-                             'in length.')
-        try:
-            kwargs['lat_lng']['lat']
-            kwargs['lat_lng']['lng']
-            request_params['location'] = kwargs['lat_lng']
-        except KeyError:
-            raise ValueError('Invalid keys for lat_lng.')
-
-        request_params['language'] = (kwargs.get('language')
-                if kwargs.get('language') is not None else
-                lang.ENGLISH)
-
-        sensor = (kwargs.get('sensor')
-                       if kwargs.get('sensor') is not None else
-                       False)
-
-        # At some point Google might support multiple types, so this supports
-        # strings and lists.
-        if isinstance(kwargs['types'], str):
-            request_params['types'] = [kwargs['types']]
-        else:
-            request_params['types'] = kwargs['types']
-        url, add_response = _fetch_remote_json(
-                GooglePlaces.ADD_API_URL % (str(sensor).lower(),
-                self.api_key), json.dumps(request_params), use_http_post=True)
-        _validate_response(url, add_response)
-        return {'place_id': add_response['place_id'],
-                'id': add_response['id']}
+    # def add_place(self, **kwargs):
+    #     """Adds a place to the Google Places database.
+    #     On a successful request, this method will return a dict containing
+    #     the the new Place's place_id and id in keys 'place_id' and 'id'
+    #     respectively.
+    #     keyword arguments:
+    #     name        -- The full text name of the Place. Limited to 255
+    #                    characters.
+    #     lat_lng     -- A dict containing the following keys: lat, lng.
+    #     accuracy    -- The accuracy of the location signal on which this request
+    #                    is based, expressed in meters.
+    #     types       -- The category in which this Place belongs. Only one type
+    #                    can currently be specified for a Place. A string or
+    #                    single element list may be passed in.
+    #     language    -- The language in which the Place's name is being reported.
+    #                    (defaults 'en').
+    #     sensor      -- Boolean flag denoting if the location came from a device
+    #                    using its location sensor (default False).
+    #     """
+    #     required_kwargs = {'name': [str], 'lat_lng': [dict],
+    #                        'accuracy': [int], 'types': [str, list]}
+    #     request_params = {}
+    #     for key in required_kwargs:
+    #         if key not in kwargs or kwargs[key] is None:
+    #             raise ValueError('The %s argument is required.' % key)
+    #         expected_types = required_kwargs[key]
+    #         type_is_valid = False
+    #         for expected_type in expected_types:
+    #             if isinstance(kwargs[key], expected_type):
+    #                 type_is_valid = True
+    #                 break
+    #         if not type_is_valid:
+    #             raise ValueError('Invalid value for %s' % key)
+    #         if key is not 'lat_lng':
+    #             request_params[key] = kwargs[key]
+    #
+    #     if len(kwargs['name']) > 255:
+    #         raise ValueError('The place name must not exceed 255 characters ' +
+    #                          'in length.')
+    #     try:
+    #         kwargs['lat_lng']['lat']
+    #         kwargs['lat_lng']['lng']
+    #         request_params['location'] = kwargs['lat_lng']
+    #     except KeyError:
+    #         raise ValueError('Invalid keys for lat_lng.')
+    #
+    #     request_params['language'] = (kwargs.get('language')
+    #             if kwargs.get('language') is not None else
+    #             lang.ENGLISH)
+    #
+    #     sensor = (kwargs.get('sensor')
+    #                    if kwargs.get('sensor') is not None else
+    #                    False)
+    #
+    #     # At some point Google might support multiple types, so this supports
+    #     # strings and lists.
+    #     if isinstance(kwargs['types'], str):
+    #         request_params['types'] = [kwargs['types']]
+    #     else:
+    #         request_params['types'] = kwargs['types']
+    #     url, add_response = _fetch_remote_json(
+    #             GooglePlaces.ADD_API_URL % (str(sensor).lower(),
+    #             self.api_key), json.dumps(request_params), use_http_post=True)
+    #     _validate_response(url, add_response)
+    #     return {'place_id': add_response['place_id'],
+    #             'id': add_response['id']}
 
     def delete_place(self, place_id, sensor=False):
         """Deletes a place from the Google Places database.
-
         keyword arguments:
         place_id   -- The textual identifier that uniquely identifies this
                       Place, returned from a Place Search request.
@@ -661,12 +635,10 @@ class Prediction(object):
     def id(self):
         """
         Returns the deprecated id property.
-
         This identifier may not be used to retrieve information about this
         place, but is guaranteed to be valid across sessions. It can be used
         to consolidate data about this Place, and to verify the identity of a
         Place across separate searches.
-
         This property is deprecated:
         https://developers.google.com/places/documentation/autocomplete#deprecation
         """
@@ -676,7 +648,6 @@ class Prediction(object):
     def matched_substrings(self):
         """
         Returns the placement and offset of the matched strings for this search.
-
         A an array of dicts, each with the keys 'length' and 'offset', will be returned.
         """
         return self._matched_substrings
@@ -685,10 +656,8 @@ class Prediction(object):
     def place_id(self):
         """
         Returns the unique stable identifier denoting this place.
-
         This identifier may be used to retrieve information about this
         place.
-
         This should be considered the primary identifier of a place.
         """
         return self._place_id
@@ -697,14 +666,11 @@ class Prediction(object):
     def reference(self):
         """
         Returns the deprecated reference property.
-
         The token can be used to retrieve additional information about this
         place when invoking the getPlace method on an GooglePlaces instance.
-
         You can store this token and use it at any time in future to refresh
         cached data about this Place, but the same token is not guaranteed to
         be returned for any given Place across different searches.
-
         This property is deprecated:
         https://developers.google.com/places/documentation/autocomplete#deprecation
         """
@@ -714,7 +680,6 @@ class Prediction(object):
     def terms(self):
         """
         A list of terms which build up the description string
-
         A an array of dicts, each with the keys `offset` and `value`, will be returned.
         """
         return self._terms
@@ -741,7 +706,6 @@ class Prediction(object):
     def get_details(self, language=None):
         """
         Retrieves full information on the place matching the place_id.
-
         Stores the response in the `place` property.
         """
         if self._place is None:
@@ -796,7 +760,6 @@ class GooglePlacesSearchResult(object):
     @property
     def html_attributions(self):
         """Returns the HTML attributions for the specified response.
-
         Any returned HTML attributions MUST be displayed as-is, in accordance
         with the requirements as found in the documentation. Please see the
         module comments for links to the relevant url.
@@ -847,12 +810,9 @@ class Place(object):
     def reference(self):
         """DEPRECATED AS OF JUNE 24, 2014. May stop being returned on June 24,
         2015. Reference: https://developers.google.com/places/documentation/search
-
         Returns contains a unique token for the place.
-
         The token can be used to retrieve additional information about this
         place when invoking the getPlace method on an GooglePlaces instance.
-
         You can store this token and use it at any time in future to refresh
         cached data about this Place, but the same token is not guaranteed to
         be returned for any given Place across different searches."""
@@ -865,9 +825,7 @@ class Place(object):
     def id(self):
         """DEPRECATED AS OF JUNE 24, 2014. May stop being returned on June 24,
         2015. Reference: https://developers.google.com/places/documentation/search
-
         Returns the unique stable identifier denoting this place.
-
         This identifier may not be used to retrieve information about this
         place, but is guaranteed to be valid across sessions. It can be used
         to consolidate data about this Place, and to verify the identity of a
@@ -881,10 +839,8 @@ class Place(object):
     @property
     def place_id(self):
         """Returns the unique stable identifier denoting this place.
-
         This identifier may be used to retrieve information about this
         place.
-
         This should be considered the primary identifier of a place.
         """
         return self._place_id
@@ -906,7 +862,6 @@ class Place(object):
     @property
     def geo_location(self):
         """Returns the lat lng co-ordinates of the place.
-
         A dict with the keys 'lat' and 'lng' will be returned.
         """
         return self._geo_location
@@ -921,7 +876,6 @@ class Place(object):
     @property
     def vicinity(self):
         """Returns a feature name of a nearby location.
-
         Often this feature refers to a street or neighborhood within the given
         results.
         """
@@ -932,7 +886,6 @@ class Place(object):
     @property
     def rating(self):
         """Returns the Place's rating, from 0.0 to 5.0, based on user reviews.
-
         This method will return None for places that have no rating.
         """
         if self._rating == '' and self.details != None and 'rating' in self.details:
@@ -950,7 +903,6 @@ class Place(object):
     @property
     def formatted_address(self):
         """Returns a string containing the human-readable address of this place.
-
         Often this address is equivalent to the "postal address," which
         sometimes differs from country to country. (Note that some countries,
         such as the United Kingdom, do not allow distribution of complete postal
@@ -979,7 +931,6 @@ class Place(object):
     @property
     def url(self):
         """Contains the official Google Place Page URL of this establishment.
-
         Applications must link to or embed the Google Place page on any screen
         that shows detailed results about this Place to the user.
         """
@@ -989,7 +940,6 @@ class Place(object):
     @property
     def html_attributions(self):
         """Returns the HTML attributions for the specified response.
-
         Any returned HTML attributions MUST be displayed as-is, in accordance
         with the requirements as found in the documentation. Please see the
         module comments for links to the relevant url.
@@ -1010,10 +960,8 @@ class Place(object):
 
     def get_details(self, language=None):
         """Retrieves full information on the place matching the place_id.
-
         Further attributes will be made available on the instance once this
         method has been invoked.
-
         keyword arguments:
         language -- The language code, indicating in which language the
                     results should be returned, if possible. This value defaults
