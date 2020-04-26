@@ -66,7 +66,7 @@ python-dateutil==2.8.0
 python-google-places==1.4.1
 pytz==2019.3
 pywebcopy==6.3.0
-PyYAML==3.13
+PyYAML==5.1
 qtwidgets==0.16
 regex==2020.1.8
 requests==2.23.0
