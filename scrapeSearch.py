@@ -25,6 +25,7 @@ def main(arg):
 
     # pull info
     url = "https://www.google.com/search?hl=en&q=" + (encodeSearch(search))
+    print(url)
     driver.get(url)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     driver.quit()
@@ -33,5 +34,5 @@ def main(arg):
     # extracts list elements that have the wanted information
     for ele in soup.findAll("li", {"class": "asD7Oe"}):
         status_array.append(ele.get('aria-label'))
-
+    print(status_array)
     return status_array
