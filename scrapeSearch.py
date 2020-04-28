@@ -53,6 +53,3 @@ def main(arg, driver):
 
     print(status_array, delivery_array)
     return (status_array, delivery_array)
-
-driver = webdriver.Chrome(executable_path='/Users/dantelacu/Documents/scrape-covid/python-google-places/chromedriver')
-main('Chick Fil A Novato', driver)
