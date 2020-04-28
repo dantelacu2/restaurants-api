@@ -2,6 +2,7 @@ import flask
 from flask import Flask, request, jsonify
 from selenium import webdriver
 import time
+import os
 
 import scrapeSearch
 import restaurants
