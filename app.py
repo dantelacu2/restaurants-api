@@ -1,6 +1,7 @@
 import flask
 from flask import Flask, request, jsonify
 from selenium import webdriver
+import time
 
 import scrapeSearch
 import restaurants
@@ -13,6 +14,9 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument("--no-sandbox")
 driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+print("WAITING")
+time.sleep(15)
+print("waiting end")
 
 @app.route('/api/names', methods=['GET'])
 def dataPull2():
