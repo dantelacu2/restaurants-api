@@ -18,7 +18,7 @@ colorama==0.3.9
 cs50==5.0.2
 cssselect==1.1.0
 decorator==4.4.1
-Django==3.0
+Django==3.0.7
 django-googlesearch==0.2
 docker==3.7.3
 docker-compose==1.23.2
